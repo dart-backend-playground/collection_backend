@@ -13,6 +13,11 @@ class PostgresDatabaseConnection extends IDatabaseConnection {
 
   Future<void> connect() async {
     connection = await Connection.open(Endpoint(
+      host: String.fromEnvironment('HOST', defaultValue: ''),
+      database: String.fromEnvironment('DATABASE', defaultValue: ''),
+      port: int.fromEnvironment('PORT', defaultValue: 6543),
+      username: String.fromEnvironment('USERNAME', defaultValue: ''),
+      password: String.fromEnvironment('PASSWORD', defaultValue: ''),
     ));
   }
 
