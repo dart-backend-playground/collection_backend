@@ -37,7 +37,7 @@ class SecurityService extends ISecurityService<JWT, IFailure> {
       return (
         JWT.verify(
           token,
-          SecretKey(Platform.environment['JWT_KEY'] ?? ''),
+          SecretKey(Platform.environment['JWT_KEY'] ?? (throw StateError('JWT_KEY environment variable not provided'))),
         ),
         Empty()
       );
