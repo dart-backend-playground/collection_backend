@@ -31,8 +31,7 @@ class LoginController extends Api {
       }
 
       return Response.ok(
-        '',
-        context: {'accessToken': token},
+        '{accessToken: $token}',
       );
     }
 
