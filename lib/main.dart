@@ -1,15 +1,15 @@
 import 'dart:io';
 
+import 'package:collection_backend/api/collection/collection_controller.dart';
+import 'package:collection_backend/api/login/login_controller.dart';
+import 'package:collection_backend/dao/collection_dao.dart';
+import 'package:collection_backend/infra/database/supabase_database_connection.dart';
+import 'package:collection_backend/infra/middleware_interception.dart';
+import 'package:collection_backend/infra/security/security_service.dart';
+import 'package:collection_backend/services/collection_service.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 
-import '../bin/api/login/login_controller.dart';
-import '../bin/api/collection/collection_controller.dart';
-import '../bin/services/collection_service.dart';
-import '../bin/infra/middleware_interception.dart';
-import '../bin/infra/security/security_service.dart';
-import '../bin/dao/collection_dao.dart';
-import '../bin/infra/database/supabase_database_connection.dart';
 
 void main(List<String> args) async {
   // Use any available host or container IP (usually `0.0.0.0`).
