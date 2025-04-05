@@ -37,4 +37,15 @@ class CollectionModel {
       'changeDate': changeDate.day,
     };
   }
+
+  static CollectionModel fromJson(Map<String, dynamic> json) {
+    return CollectionModel(
+      id: json['id'] ?? 0,
+      name: json['name'] ?? '',
+      type: CollectionTypeModel.empty(), //json['type'],
+      changeDate: json['changeDate'] ?? DateTime.now(),
+      description: json['description'] ?? '',
+      creationDate: json['creationDate'] ?? DateTime.now(),
+    );
+  }
 }
