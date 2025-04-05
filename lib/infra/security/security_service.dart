@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
@@ -28,7 +29,29 @@ class SecurityService extends ISecurityService<JWT, IFailure> {
       return session.accessToken;
     }
 
-    return '';
+    return jsonEncode('');
+  }
+
+  @override
+  Future<String> logout() async {
+    await supabase.supabase.auth.signOut();
+
+    return jsonEncode('Logout');
+  }
+
+  @override
+  Future<String> register(String email, password) async {
+    final AuthResponse res = await supabase.supabase.auth.signUp(
+      email: email,
+      password: password,
+    );
+    final Session? session = res.session;
+
+    if (session != null) {
+      return session.accessToken;
+    }
+
+    return jsonEncode('Error: Cannot SignUp');
   }
 
   @override
@@ -37,7 +60,8 @@ class SecurityService extends ISecurityService<JWT, IFailure> {
       return (
         JWT.verify(
           token,
-          SecretKey(Platform.environment['JWT_KEY'] ?? (throw StateError('JWT_KEY environment variable not provided'))),
+          SecretKey(Platform.environment['JWT_KEY'] ??
+              (throw StateError('JWT_KEY environment variable not provided'))),
         ),
         Empty()
       );
@@ -50,20 +74,21 @@ class SecurityService extends ISecurityService<JWT, IFailure> {
   Middleware get authorization {
     return (Handler handler) {
       return (Request request) async {
-        final authorizationHeader = request.headers[HttpHeaders.authorizationHeader] ?? '';
+        final authorizationHeader =
+            request.headers[HttpHeaders.authorizationHeader] ?? '';
 
         final token = bearerTokenRegExp.firstMatch(authorizationHeader);
 
-        if (token != null) {
+        if (token == null) {
+          return Response.unauthorized('Access Token not informed');
+        } else {
           final (jwtValidate, failure) = await validateJWT(token[1]!);
+
           if (failure is Empty) {
-            // request = request.change(
-            //   context: {
-            //     'userId': userId,
-            //   },
-            // );
             return handler(request);
-          } else if (failure is JwtFailure) {}
+          } else if (failure is JwtFailure) {
+            return Response.unauthorized('Invalid Token');
+          }
         }
 
         return Response.unauthorized('Unauthorization');
