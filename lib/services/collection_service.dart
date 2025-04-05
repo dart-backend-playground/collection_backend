@@ -1,22 +1,28 @@
-import './../models/collection_model.dart';
-import './generic_service.dart';
 import '../infra/database/i_dao.dart';
 import '../infra/failures/i_failures.dart';
+import './../models/collection_model.dart';
+import './generic_service.dart';
 
 class CollectionService extends GenericService<CollectionModel> {
-  final IDAO dao;
+  final IDAO<CollectionModel, IFailure> dao;
 
   CollectionService({required this.dao});
 
   @override
   bool delete(String id) {
-    throw UnimplementedError();
+    final failure = dao.delete(id);
+
+    return failure is Empty;
   }
 
   @override
-  List<CollectionModel> findAll() {
-    // TODO: implement findAll
-    throw UnimplementedError();
+  Future<List<CollectionModel>> findAll() async {
+    final (dados, failure) = await dao.findAll();
+    if (failure is Empty) {
+      return dados;
+    }
+
+    return <CollectionModel>[];
   }
 
   @override
@@ -31,7 +37,8 @@ class CollectionService extends GenericService<CollectionModel> {
 
   @override
   bool save(CollectionModel object) {
-    // TODO: implement save
-    throw UnimplementedError();
+    final failure = dao.save(object);
+
+    return failure is Empty;
   }
 }
