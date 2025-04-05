@@ -12,12 +12,28 @@ class PostgresDatabaseConnection extends IDatabaseConnection {
   }
 
   Future<void> connect() async {
+    final username = Platform.environment['DB_USER'] ??
+        (throw DatabaseFailure(
+            message: 'DB_USERNAME environment variable not provided'));
+    final host = Platform.environment['DB_HOST'] ??
+        (throw DatabaseFailure(
+            message: 'DB_HOST environment variable not provided'));
+    final database = Platform.environment['DB_NAME'] ??
+        (throw DatabaseFailure(
+            message: 'DB_NAME environment variable not provided'));
+    final port = int.parse(Platform.environment['DB_PORT'] ??
+        (throw DatabaseFailure(
+            message: 'DB_PORT environment variable not provided')));
+    final password = Platform.environment['DB_PASSWORD'] ??
+        (throw DatabaseFailure(
+            message: 'DB_PASSWORD environment variable not provided'));
+
     connection = await Connection.open(Endpoint(
-      host: String.fromEnvironment('HOST', defaultValue: ''),
-      database: String.fromEnvironment('DATABASE', defaultValue: ''),
-      port: int.fromEnvironment('PORT', defaultValue: 6543),
-      username: String.fromEnvironment('USERNAME', defaultValue: ''),
-      password: String.fromEnvironment('PASSWORD', defaultValue: ''),
+      host: host,
+      database: database,
+      port: port,
+      username: username,
+      password: password,
     ));
   }
 
