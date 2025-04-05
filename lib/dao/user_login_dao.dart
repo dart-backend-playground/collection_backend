@@ -9,14 +9,12 @@ class UserLoginDao extends IDAO<UserLoginModel, IFailure> {
   UserLoginDao({required this.database});
 
   @override
-  Future<(bool, IFailure)> delete(String id) {
-    // TODO: implement delete
+  Future<IFailure> delete(String id) async {
     throw UnimplementedError();
   }
 
   @override
-  Future<(List<UserLoginModel>, IFailure)> findAll() {
-    // TODO: implement findAll
+  Future<(List<UserLoginModel>, IFailure)> findAll() async {
     throw UnimplementedError();
   }
 
@@ -28,7 +26,7 @@ class UserLoginDao extends IDAO<UserLoginModel, IFailure> {
   }
 
   @override
-  Future<(bool, IFailure)> save(UserLoginModel value) {
+  Future<IFailure> save(UserLoginModel value) async {
     // final data = database.update(table, columns, where)
     throw UnimplementedError();
   }
