@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:collection_backend/api/collection/collection_controller.dart';
 import 'package:collection_backend/api/login/login_controller.dart';
 import 'package:collection_backend/dao/collection_dao.dart';
+import 'package:collection_backend/infra/database/postgres_database_connection.dart';
 import 'package:collection_backend/infra/database/supabase_database_connection.dart';
 import 'package:collection_backend/infra/middleware_interception.dart';
 import 'package:collection_backend/infra/security/security_service.dart';
@@ -14,11 +15,12 @@ import 'package:shelf/shelf_io.dart';
 void main(List<String> args) async {
   // Use any available host or container IP (usually `0.0.0.0`).
 
-  final database = SupabaseDatabaseConnection();
+  final supabase = SupabaseDatabaseConnection();
+  final database = PostgresDatabaseConnection();
   // final userLoginDao = UserLoginDao(database: database);
   final collectionDao = CollectionDao(database: database);
   final collectionService = CollectionService(dao: collectionDao);
-  final securityService = SecurityService(supabase: database);
+  final securityService = SecurityService(supabase: supabase);
   final middlewareInterception = MiddlewareInterception();
 
   final cascadeHandler = Cascade()
@@ -44,7 +46,10 @@ void main(List<String> args) async {
       .addMiddleware(middlewareInterception.headerMiddleware)
       .addHandler(cascadeHandler);
 
-  final address = String.fromEnvironment('ADDRESS', defaultValue: InternetAddress.anyIPv4.address);
+  final address = String.fromEnvironment(
+    'ADDRESS',
+    defaultValue: InternetAddress.anyIPv4.address,
+  );
   final port = int.fromEnvironment('PORT', defaultValue: 8080);
   final server = await serve(handler, address, port);
 
