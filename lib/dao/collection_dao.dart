@@ -1,7 +1,6 @@
 import '../infra/database/i_dao.dart';
 import '../infra/database/i_database_connection.dart';
 import '../infra/failures/i_failures.dart';
-import '../infra/failures/jwt_failure.dart';
 import '../models/collection_model.dart';
 import '../models/collection_type_model.dart';
 
@@ -11,32 +10,44 @@ class CollectionDao implements IDAO<CollectionModel, IFailure> {
   CollectionDao({required this.database});
 
   @override
-  Future<(bool, IFailure)> delete(String id) {
-    // TODO: implement delete
-    throw UnimplementedError();
+  Future<IFailure> delete(String id) async {
+    final (listResult, failure) = await database.delete(
+      'tb_collection',
+      {
+        'id': [id],
+      },
+    );
+
+    return failure;
   }
 
   @override
-  Future<(List<CollectionModel>, IFailure)> findAll() {
-    // TODO: implement findAll
-    throw UnimplementedError();
+  Future<(List<CollectionModel>, IFailure)> findAll() async {
+    final (listResult, failure) = await database.select('tb_collection', ['*'], {});
+
+    if ((failure is Empty) && (listResult.isNotEmpty)) {
+      return (
+        listResult.map((e) {
+          return CollectionModel.fromJson(e);
+        }).toList(),
+        Empty()
+      );
+    }
+
+    return (<CollectionModel>[], failure);
   }
 
   @override
   Future<(CollectionModel, IFailure)> findOne(String id) async {
-    // final listResult =
-    //     await database.select(['*']).from('teste').where(['id'], [id]);
-    // final result = listResult.first;
     final (listResult, failure) = await database.select(
-      'teste',
+      'tb_collection',
       ['*'],
       {
         'id': [id],
       },
     );
 
-    if (failure is Empty) {
-      // print(listResult.toString());
+    if ((failure is Empty) && (listResult.isNotEmpty)) {
       final result = listResult.first;
       return (
         CollectionModel(
@@ -51,13 +62,15 @@ class CollectionDao implements IDAO<CollectionModel, IFailure> {
       );
     }
 
-    return (CollectionModel.empty(), JwtFailure(message: 'Collection not found'));
-    // final result = listResult
+    return (CollectionModel.empty(), failure);
   }
 
   @override
-  Future<(bool, IFailure)> save(CollectionModel value) {
-    // TODO: implement save
-    throw UnimplementedError();
+  Future<IFailure> save(CollectionModel value) async {
+    final (listResult, failure) = await database.insert(
+      'tb_collection',
+      value.toJson().cast<String, String>(),
+    );
+    return failure;
   }
 }
