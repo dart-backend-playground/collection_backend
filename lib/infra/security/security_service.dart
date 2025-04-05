@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collection_backend/infra/database/supabase_database_connection.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:shelf/shelf.dart';
 import 'package:supabase/supabase.dart';
@@ -8,7 +9,6 @@ import 'package:supabase/supabase.dart';
 import './i_security_service.dart';
 import './../failures/i_failures.dart';
 import './../failures/jwt_failure.dart';
-import '../database/supabase_database_connection.dart';
 
 final bearerTokenRegExp = RegExp(r'Bearer (?<token>.+)');
 
@@ -55,18 +55,16 @@ class SecurityService extends ISecurityService<JWT, IFailure> {
   }
 
   @override
-  Future<(JWT, IFailure)> validateJWT(String token) async {
+  Future<IFailure> validateJWT(String token) async {
     try {
-      return (
-        JWT.verify(
-          token,
-          SecretKey(Platform.environment['JWT_KEY'] ??
-              (throw StateError('JWT_KEY environment variable not provided'))),
-        ),
-        Empty()
+      JWT.verify(
+        token,
+        SecretKey(Platform.environment['JWT_KEY'] ??
+            (throw StateError('JWT_KEY environment variable not provided'))),
       );
-    } on JWTException {
-      return (JWT({}), JwtFailure(message: 'Error: JWTException'));
+      return Empty();
+    } on JWTException catch (e) {
+      return JwtFailure(message: 'Error: ${e.message}');
     }
   }
 
@@ -82,7 +80,7 @@ class SecurityService extends ISecurityService<JWT, IFailure> {
         if (token == null) {
           return Response.unauthorized('Access Token not informed');
         } else {
-          final (jwtValidate, failure) = await validateJWT(token[1]!);
+          final failure = await validateJWT(token[1]!);
 
           if (failure is Empty) {
             return handler(request);

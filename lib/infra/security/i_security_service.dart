@@ -4,7 +4,7 @@ abstract class ISecurityService<T, U> {
   Future<String> login(String email, password);
   Future<String> logout();
   Future<String> register(String email, password);
-  Future<(T, U)> validateJWT(String token);
+  Future<U> validateJWT(String token);
 
   Middleware get authorization;
 }
