@@ -14,22 +14,11 @@ class MiddlewareInterception {
     });
   }
 
-  // Middleware get authorizationRequestHandler {
-  //   return (Handler handler) {
-  //     return (Request request) async {
-  //       request = request.change(
-  //         headers: {
-  //           'Authorization': 'Bearer ${context['accessToken']}',
-  //         },
-  //       );
-  //       return handler(request);
-  //     };
-  //   };
-  // }
-
   Middleware get loginResponseMiddleware {
     return createMiddleware(responseHandler: (Response response) {
-      context = response.context;
+      response = response.change(headers: {
+        'content-type': 'application/json',
+      });
 
       return response;
     });
