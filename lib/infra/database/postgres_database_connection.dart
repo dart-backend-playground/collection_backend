@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:collection_backend/infra/failures/database_failure.dart';
 import 'package:postgres/postgres.dart';
 
 import '../../utils/types.dart';
@@ -53,7 +56,12 @@ class PostgresDatabaseConnection extends IDatabaseConnection {
   Future<(List<JsonType>, IFailure)> select(String table, ColumnsSelectType columns, WhereType where) async {
     final result = await connection.execute('select ${columns.join(',')} from $table ;');
     print(result.first.toColumnMap());
-    throw UnimplementedError();
+    return (
+      [
+        result.first.toColumnMap(),
+      ],
+      Empty()
+    );
   }
 
   @override
