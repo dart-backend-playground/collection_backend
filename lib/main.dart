@@ -3,24 +3,22 @@ import 'dart:io';
 import 'package:collection_backend/api/collection/collection_controller.dart';
 import 'package:collection_backend/api/login/login_controller.dart';
 import 'package:collection_backend/dao/collection_dao.dart';
+import 'package:collection_backend/dao/user_login_dao.dart';
 import 'package:collection_backend/infra/database/postgres_database_connection.dart';
-import 'package:collection_backend/infra/database/supabase_database_connection.dart';
 import 'package:collection_backend/infra/middleware_interception.dart';
 import 'package:collection_backend/infra/security/security_service.dart';
 import 'package:collection_backend/services/collection_service.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 
-
 void main(List<String> args) async {
   // Use any available host or container IP (usually `0.0.0.0`).
 
-  final supabase = SupabaseDatabaseConnection();
   final database = PostgresDatabaseConnection();
-  // final userLoginDao = UserLoginDao(database: database);
+  final loginDao = UserLoginDao();
   final collectionDao = CollectionDao(database: database);
   final collectionService = CollectionService(dao: collectionDao);
-  final securityService = SecurityService(supabase: supabase);
+  final securityService = SecurityService(loginDao: loginDao);
   final middlewareInterception = MiddlewareInterception();
 
   final cascadeHandler = Cascade()
