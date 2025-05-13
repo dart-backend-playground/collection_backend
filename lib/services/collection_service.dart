@@ -3,7 +3,7 @@ import '../infra/failures/i_failures.dart';
 import './../models/collection_model.dart';
 import './generic_service.dart';
 
-class CollectionService extends GenericService<CollectionModel> {
+class CollectionService extends GenericService<CollectionModel, IFailure> {
   final IDAO<CollectionModel, IFailure> dao;
 
   CollectionService({required this.dao});
@@ -26,13 +26,13 @@ class CollectionService extends GenericService<CollectionModel> {
   }
 
   @override
-  Future<CollectionModel> findOne(String id) async {
+  Future<(CollectionModel, IFailure)> findOne(String id) async {
     final (dados, failure) = await dao.findOne(id);
     if (failure is Empty) {
-      return dados;
+      return (dados, failure);
     }
 
-    return CollectionModel.empty();
+    return (CollectionModel.empty(), Empty());
   }
 
   @override
