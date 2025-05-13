@@ -12,7 +12,7 @@ class PostgresDatabaseConnection extends IDatabaseConnection {
   }
 
   Future<void> connect() async {
-    final username = Platform.environment['DB_USER'] ??
+    final username = Platform.environment['DB_USERNAME'] ??
         (throw DatabaseFailure(
             message: 'DB_USERNAME environment variable not provided'));
     final host = Platform.environment['DB_HOST'] ??
