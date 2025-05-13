@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:collection_backend/infra/database/supabase_database_connection.dart';
+import 'package:collection_backend/dao/user_login_dao.dart';
+import 'package:collection_backend/models/user_login_model.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:shelf/shelf.dart';
-import 'package:supabase/supabase.dart';
 
 import './i_security_service.dart';
 import './../failures/i_failures.dart';
@@ -13,45 +13,40 @@ import './../failures/jwt_failure.dart';
 final bearerTokenRegExp = RegExp(r'Bearer (?<token>.+)');
 
 class SecurityService extends ISecurityService<JWT, IFailure> {
-  final SupabaseDatabaseConnection supabase;
+  final UserLoginDao loginDao;
 
-  SecurityService({required this.supabase});
+  SecurityService({required this.loginDao});
 
   @override
   Future<String> login(String email, password) async {
-    final AuthResponse res = await supabase.supabase.auth.signInWithPassword(
-      email: email,
-      password: password,
+    final (user, failure) = await loginDao.login(
+      UserLoginModel(login: email, password: password),
     );
-    final Session? session = res.session;
 
-    if (session != null) {
-      return session.accessToken;
+    if (failure is Empty) {
+      return user.accessToken;
     }
-
-    return jsonEncode('');
+    return 'jwt_invalid_token';
   }
 
   @override
-  Future<String> logout() async {
-    await supabase.supabase.auth.signOut();
+  Future<IFailure> logout(String accessToken) async {
+    final failure = await loginDao.logout(accessToken);
 
-    return jsonEncode('Logout');
+    return failure;
   }
 
   @override
   Future<String> register(String email, password) async {
-    final AuthResponse res = await supabase.supabase.auth.signUp(
-      email: email,
-      password: password,
+    final (user, failure) = await loginDao.register(
+      UserLoginModel(login: email, password: password),
     );
-    final Session? session = res.session;
 
-    if (session != null) {
-      return session.accessToken;
+    if (failure is Empty) {
+      return user.accessToken;
     }
 
-    return jsonEncode('Error: Cannot SignUp');
+    return 'Cannot register';
   }
 
   @override
